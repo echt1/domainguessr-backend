@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Talo Config
 const TALO_API = "https://api.talo.gg/v1";
-const TALO_KEY = process.env.TALO_KEY; // im Render-Dashboard als Env Variable setzen
+const TALO_KEY = process.env.TALO_KEY; // im Render-Dashboard als Environment Variable setzen
 
 // Healthcheck
 app.get("/", (req, res) => {
@@ -23,8 +23,8 @@ app.get("/", (req, res) => {
 app.post("/submit-score", async (req, res) => {
   const { playerId, score } = req.body;
 
-  if (!playerId || !score) {
-    return res.status(400).json({ error: "playerId und score erforderlich" });
+  if (!playerId || typeof score !== "number") {
+    return res.status(400).json({ error: "playerId (string) und score (number) erforderlich" });
   }
 
   try {
@@ -34,15 +34,13 @@ app.post("/submit-score", async (req, res) => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${TALO_KEY}`,
       },
-      body: JSON.stringify({
-        playerId,
-        score,
-      }),
+      body: JSON.stringify({ playerId, score }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
+      console.error("Talo API Fehler:", data);
       return res.status(500).json({ error: data });
     }
 
@@ -57,14 +55,13 @@ app.post("/submit-score", async (req, res) => {
 app.get("/leaderboard", async (req, res) => {
   try {
     const response = await fetch(`${TALO_API}/leaderboards/dg-singleplayer`, {
-      headers: {
-        Authorization: `Bearer ${TALO_KEY}`,
-      },
+      headers: { Authorization: `Bearer ${TALO_KEY}` },
     });
 
     const data = await response.json();
 
     if (!response.ok) {
+      console.error("Talo API Fehler:", data);
       return res.status(500).json({ error: data });
     }
 
