@@ -35,7 +35,6 @@ app.listen(PORT, () => {
   console.log(`Backend läuft auf Port ${PORT}`);
 });
 
-import bodyParser from "body-parser";
 import fetch from "node-fetch";
 
 const app = express();
@@ -111,4 +110,5 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Backend läuft auf Port ${PORT}`);
 });
+
 
