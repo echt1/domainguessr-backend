@@ -1,55 +1,25 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-
-let scores = []; // Hier speichern wir die Scores im Speicher
-
-// Root
-app.get("/", (req, res) => {
-  res.send("✅ DomainGuessr Backend läuft!");
-});
-
-// Score speichern
-app.post("/score", (req, res) => {
-  const { username, points } = req.body;
-  if (!username || !points) {
-    return res.status(400).json({ error: "Username und Punkte erforderlich" });
-  }
-  scores.push({ username, points });
-  scores.sort((a, b) => b.points - a.points);
-  scores = scores.slice(0, 50); // nur Top 50 halten
-  res.json({ success: true });
-});
-
-// Leaderboard abrufen
-app.get("/leaderboard", (req, res) => {
-  res.json(scores.slice(0, 10)); // nur Top 10 zurückgeben
-});
-
-app.listen(PORT, () => {
-  console.log(`Backend läuft auf Port ${PORT}`);
-});
-
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
 import fetch from "node-fetch";
 
+const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
 
 // Talo Config
 const TALO_API = "https://api.talo.gg/v1";
 const TALO_KEY = process.env.TALO_KEY; // im Render-Dashboard als Env Variable setzen
-
-app.use(bodyParser.json());
 
 // Healthcheck
 app.get("/", (req, res) => {
   res.send("✅ DomainGuessr Backend läuft mit Talo-Leaderboard!");
 });
 
-// Score speichern
+// Score speichern (Talo)
 app.post("/submit-score", async (req, res) => {
   const { playerId, score } = req.body;
 
@@ -83,7 +53,7 @@ app.post("/submit-score", async (req, res) => {
   }
 });
 
-// Leaderboard abrufen
+// Leaderboard abrufen (Talo)
 app.get("/leaderboard", async (req, res) => {
   try {
     const response = await fetch(`${TALO_API}/leaderboards/dg-singleplayer`, {
@@ -106,9 +76,5 @@ app.get("/leaderboard", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend läuft auf Port ${PORT}`);
+  console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
-
-
-
-
