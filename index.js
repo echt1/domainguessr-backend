@@ -37,7 +37,6 @@ app.listen(PORT, () => {
 
 import fetch from "node-fetch";
 
-const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Talo Config
@@ -110,5 +109,6 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Backend läuft auf Port ${PORT}`);
 });
+
 
 
