@@ -30,7 +30,6 @@ app.get("/leaderboard", (req, res) => {
   res.json(scores.slice(0, 10)); // nur Top 10 zurückgeben
 });
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend läuft auf Port ${PORT}`);
 });
@@ -109,6 +108,7 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Backend läuft auf Port ${PORT}`);
 });
+
 
 
 
