@@ -1,3 +1,4 @@
+console.log("TALO_KEY:", process.env.TALO_KEY ? "✅ Gefunden" : "❌ Nicht gefunden");
 // ====== DIESER FINALE CODE GEHÖRT IN DEINE index.js AUF RENDER ======
 
 import express from "express";
@@ -82,3 +83,4 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
+
