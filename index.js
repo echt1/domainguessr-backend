@@ -59,15 +59,23 @@ app.post("/submit-score", async (req, res) => {
 
 // Leaderboard abrufen
 app.get("/leaderboard", async (req, res) => {
-  if (!TALO_KEY) return res.status(500).json({ error: "TALO_KEY nicht gesetzt" });
+  if (!TALO_KEY) {
+    return res.status(500).json({ error: "TALO_KEY ist auf dem Server nicht konfiguriert." });
+  }
 
   try {
     const response = await fetch(`${TALO_API}/dg-singleplayer/entries`, {
-      headers: { Authorization: `Bearer ${TALO_KEY}` }
+      headers: { Authorization: `Bearer ${TALO_KEY}` },
     });
-    const text = await response.text(); // statt .json()
-    console.log("Talo API raw response:", text);
-    res.send(text);
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Talo API Fehler beim Leaderboard abrufen:", data);
+      return res.status(response.status).json({ error: data });
+    }
+
+    res.json(data);
   } catch (err) {
     console.error("Fehler beim Leaderboard abrufen:", err);
     res.status(500).json({ error: "Serverfehler" });
@@ -78,4 +86,5 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
+
 
