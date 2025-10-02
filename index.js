@@ -13,14 +13,16 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Talo Config
-// FINALE KORREKTUR: Das ist die richtige, aktuelle API-Adresse!
-const TALO_API = "https://api.trytalo.com/v1"; 
+// Richtige API-Adresse mit Leaderboard-Endpunkt
+const TALO_API = "https://api.trytalo.com/v1/leaderboards";
 const TALO_KEY = process.env.TALO_KEY;
 
+// Einfacher Healthcheck
 app.get("/", (req, res) => {
   res.send("✅ DomainGuessr Backend läuft mit Talo-Leaderboard!");
 });
 
+// Score eintragen
 app.post("/submit-score", async (req, res) => {
   const { playerId, score } = req.body;
 
@@ -32,7 +34,7 @@ app.post("/submit-score", async (req, res) => {
   }
 
   try {
-    const response = await fetch(`${TALO_API}/leaderboards/dg-singleplayer/scores`, {
+    const response = await fetch(`${TALO_API}/dg-singleplayer/entries`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +46,7 @@ app.post("/submit-score", async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Talo API Fehler:", data);
+      console.error("Talo API Fehler beim Score eintragen:", data);
       return res.status(response.status).json({ error: data });
     }
 
@@ -55,26 +57,26 @@ app.post("/submit-score", async (req, res) => {
   }
 });
 
+// Leaderboard abrufen
 app.get("/leaderboard", async (req, res) => {
   if (!TALO_KEY) {
     return res.status(500).json({ error: "TALO_KEY ist auf dem Server nicht konfiguriert." });
   }
 
   try {
-    const response = await fetch(`${TALO_API}/leaderboards/dg-singleplayer`, {
+    const response = await fetch(`${TALO_API}/dg-singleplayer/entries`, {
       headers: { Authorization: `Bearer ${TALO_KEY}` },
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Talo API Fehler:", data);
+      console.error("Talo API Fehler beim Leaderboard abrufen:", data);
       return res.status(response.status).json({ error: data });
     }
 
     res.json(data);
-  } catch (err)
-  {
+  } catch (err) {
     console.error("Fehler beim Leaderboard abrufen:", err);
     res.status(500).json({ error: "Serverfehler" });
   }
@@ -83,4 +85,3 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
-
