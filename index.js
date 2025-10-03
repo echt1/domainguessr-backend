@@ -9,14 +9,14 @@ import fetch from "node-fetch";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-console.log("Gesendeter Key:", TALO_KEY.slice(0, 6) + "...");
-
 app.use(cors());
 app.use(bodyParser.json());
 
 const TALO_API = "https://api.trytalo.com/v1"; 
 const TALO_KEY = process.env.TALO_KEY;
 const TALO_LEADERBOARD_ID = "dg-singleplayer";
+
+console.log("Gesendeter Key:", TALO_KEY.slice(0, 6) + "...");
 
 app.get("/", (req, res) => {
   res.send("✅ DomainGuessr Backend läuft mit Talo-Leaderboard!");
@@ -77,5 +77,6 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
+
 
 
