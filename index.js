@@ -15,14 +15,12 @@ const TALO_API = "https://api.trytalo.com/v1";
 const TALO_KEY = process.env.TALO_KEY;
 const TALO_LEADERBOARD_ID = "dg-singleplayer";
 
-console.log("Gesendeter Key (erste 6):", TALO_KEY ? TALO_KEY.slice(0, 6) + "..." : "❌ Keiner");
+console.log("Gesendeter Key (erste 6):", TALO_KEY ? TALO_KEY.slice(0, 6) + "..." : "❌ Nicht gefunden");
 
-// === START / TEST ===
 app.get("/", (req, res) => {
   res.send("✅ DomainGuessr Backend läuft mit Talo-Leaderboard!");
 });
 
-// === SCORE EINTRAGEN ===
 app.post("/submit-score", async (req, res) => {
   const { playerId, score } = req.body;
 
@@ -38,7 +36,7 @@ app.post("/submit-score", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Access-Token": TALO_KEY
+        "Authorization": `Bearer ${TALO_KEY}`, // <- Korrekt laut Docs!
       },
       body: JSON.stringify({ playerId, score }),
     });
@@ -52,7 +50,6 @@ app.post("/submit-score", async (req, res) => {
   }
 });
 
-// === LEADERBOARD ABRUFEN ===
 app.get("/leaderboard", async (req, res) => {
   if (!TALO_KEY) {
     return res.status(500).json({ error: "TALO_KEY ist auf dem Server nicht konfiguriert." });
@@ -61,7 +58,7 @@ app.get("/leaderboard", async (req, res) => {
   try {
     const response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
       headers: {
-        "X-Access-Token": TALO_KEY
+        "Authorization": `Bearer ${TALO_KEY}`, // <- Korrekt laut Docs!
       },
     });
 
