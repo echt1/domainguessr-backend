@@ -1,7 +1,5 @@
 console.log("TALO_KEY:", process.env.TALO_KEY ? "✅ Gefunden" : "❌ Nicht gefunden");
-// ====== FINALER KORRIGIERTER CODE für deine index.js ======
-// Mit der korrekten /entries URL
-
+//
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -32,12 +30,12 @@ app.post("/submit-score", async (req, res) => {
   }
 
   try {
-    // KORREKTUR: /entries statt /scores
     const response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${TALO_KEY}`,
+        // KORREKTUR: Das ist das richtige Header-Format für Talo
+        "X-Access-Token": TALO_KEY 
       },
       body: JSON.stringify({ playerId, score }),
     });
@@ -57,9 +55,11 @@ app.get("/leaderboard", async (req, res) => {
   }
 
   try {
-    // KORREKTUR: /entries statt ohne alles
     const response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-      headers: { Authorization: `Bearer ${TALO_KEY}` },
+      headers: {
+        // KORREKTUR: Auch hier das richtige Header-Format
+        "X-Access-Token": TALO_KEY
+      },
     });
 
     const data = await response.json();
@@ -74,4 +74,3 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
-
