@@ -1,6 +1,3 @@
-console.log("TALO_KEY:", process.env.TALO_KEY ? "✅ Gefunden" : "❌ Nicht gefunden");
-
-//
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -9,63 +6,60 @@ import fetch from "node-fetch";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(bodyParser.json());
-
-const TALO_API = "https://api.trytalo.com/v1"; 
+const TALO_API = "https://api.trytalo.com/v1";
 const TALO_KEY = process.env.TALO_KEY;
 const TALO_LEADERBOARD_ID = "dg-singleplayer";
 
-console.log("Gesendeter Key:", TALO_KEY.slice(0, 6) + "...");
+// Debug: zeig an, ob Key geladen ist
+console.log("TALO_KEY:", TALO_KEY ? "✅ Gefunden" : "❌ Nicht gefunden");
+if (TALO_KEY) {
+  console.log("Gesendeter Key (erste 6):", TALO_KEY.slice(0, 6) + "...");
+}
 
+app.use(cors());
+app.use(bodyParser.json());
+
+// einfacher Test-Endpunkt
 app.get("/", (req, res) => {
   res.send("✅ DomainGuessr Backend läuft mit Talo-Leaderboard!");
 });
 
-app.post("/submit-score", async (req, res) => {
-  const { playerId, score } = req.body;
-
-  if (!playerId || typeof score !== "number") {
-    return res.status(400).json({ error: "playerId (string) und score (number) erforderlich" });
-  }
-  if (!TALO_KEY) {
-    return res.status(500).json({ error: "TALO_KEY ist auf dem Server nicht konfiguriert." });
-  }
-
-  try {
-    const response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // KORREKTUR: Das ist das richtige Header-Format für Talo
-        "X-Access-Token": TALO_KEY 
-      },
-      body: JSON.stringify({ playerId, score }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(JSON.stringify(data));
-    res.json({ success: true, data });
-  } catch (err) {
-    console.error("Fehler beim Score eintragen:", err.message);
-    res.status(500).json({ error: "Serverfehler beim Score eintragen" });
-  }
-});
-
+// Leaderboard-Abfrage mit wählbarer Header-Variante
 app.get("/leaderboard", async (req, res) => {
   if (!TALO_KEY) {
     return res.status(500).json({ error: "TALO_KEY ist auf dem Server nicht konfiguriert." });
   }
 
+  // Schalter: true = X-Access-Token, false = Authorization: Bearer
+  const USE_X_ACCESS = true;
+
   try {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (USE_X_ACCESS) {
+      headers["X-Access-Token"] = TALO_KEY;
+    } else {
+      headers["Authorization"] = `Bearer ${TALO_KEY}`;
+    }
+
+    console.log("👉 Nutze Header:", USE_X_ACCESS ? "X-Access-Token" : "Authorization: Bearer");
+
     const response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-      headers: {
-        // KORREKTUR: Auch hier das richtige Header-Format
-        "X-Access-Token": TALO_KEY
-      },
+      headers,
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    console.log("RAW Antwort:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
     if (!response.ok) throw new Error(JSON.stringify(data));
     res.json(data);
   } catch (err) {
@@ -77,6 +71,3 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
-
-
-
