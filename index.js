@@ -1,4 +1,5 @@
 console.log("TALO_KEY:", process.env.TALO_KEY ? "✅ Gefunden" : "❌ Nicht gefunden");
+console.log("Gesendeter Key:", TALO_KEY.slice(0, 6) + "...");
 //
 import express from "express";
 import cors from "cors";
@@ -74,3 +75,4 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
+
