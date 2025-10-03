@@ -17,25 +17,7 @@ const TALO_LEADERBOARD_ID = "dg-singleplayer";
 
 console.log("Gesendeter Key (erste 6):", TALO_KEY ? TALO_KEY.slice(0, 6) + "..." : "❌ Keiner");
 
-function getHeaders(type = "bearer") {
-  if (type === "bearer") {
-    return {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${TALO_KEY}`
-    };
-  } else if (type === "x-access") {
-    return {
-      "Content-Type": "application/json",
-      "X-Access-Token": TALO_KEY
-    };
-  } else {
-    return {
-      "Content-Type": "application/json",
-      "X-API-Key": TALO_KEY
-    };
-  }
-}
-
+// === START / TEST ===
 app.get("/", (req, res) => {
   res.send("✅ DomainGuessr Backend läuft mit Talo-Leaderboard!");
 });
@@ -52,30 +34,14 @@ app.post("/submit-score", async (req, res) => {
   }
 
   try {
-    // Erst Bearer probieren
-    let response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
+    const response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
       method: "POST",
-      headers: getHeaders("bearer"),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Access-Token": TALO_KEY
+      },
       body: JSON.stringify({ playerId, score }),
     });
-
-    if (!response.ok) {
-      console.warn("👉 Bearer fehlgeschlagen, versuche X-Access-Token...");
-      response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-        method: "POST",
-        headers: getHeaders("x-access"),
-        body: JSON.stringify({ playerId, score }),
-      });
-    }
-
-    if (!response.ok) {
-      console.warn("👉 X-Access-Token fehlgeschlagen, versuche X-API-Key...");
-      response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-        method: "POST",
-        headers: getHeaders("x-api"),
-        body: JSON.stringify({ playerId, score }),
-      });
-    }
 
     const data = await response.json();
     if (!response.ok) throw new Error(JSON.stringify(data));
@@ -93,23 +59,11 @@ app.get("/leaderboard", async (req, res) => {
   }
 
   try {
-    let response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-      headers: getHeaders("bearer"),
+    const response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
+      headers: {
+        "X-Access-Token": TALO_KEY
+      },
     });
-
-    if (!response.ok) {
-      console.warn("👉 Bearer fehlgeschlagen, versuche X-Access-Token...");
-      response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-        headers: getHeaders("x-access"),
-      });
-    }
-
-    if (!response.ok) {
-      console.warn("👉 X-Access-Token fehlgeschlagen, versuche X-API-Key...");
-      response = await fetch(`${TALO_API}/leaderboards/${TALO_LEADERBOARD_ID}/entries`, {
-        headers: getHeaders("x-api"),
-      });
-    }
 
     const data = await response.json();
     if (!response.ok) throw new Error(JSON.stringify(data));
