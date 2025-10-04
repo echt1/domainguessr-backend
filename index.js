@@ -1,4 +1,4 @@
-// ====== FINALER, KORREKTER CODE für deine index.js ======
+// ====== TEMPORÄRER DEBUG-CODE ZUM HARDCODEN DES KEYS ======
 
 import express from "express";
 import cors from "cors";
@@ -12,8 +12,17 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const TALO_API = "https://api.trytalo.com/v1";
-const TALO_KEY = process.env.TALO_KEY;
 const TALO_LEADERBOARD_ID = "dg-singleplayer";
+const TALO_PLAYER_SERVICE = "domainguessr-web";
+
+// !!! ACHTUNG: NUR ZUM TESTEN !!!
+// const TALO_KEY = process.env.TALO_KEY; // Originale Zeile deaktiviert
+const TALO_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY3NywiYXBpIjp0cnVlLCJpYXQiOjE3NTg5MDcxMzV9.XzzJG_AZ87qAAD8k6ENoHIu5QjFGlY-rRnr4yczUYcU"; // Füge den Key aus dem Text-Editor hier ein
+
+console.log("TALO_KEY (Hardcoded Test):", TALO_KEY ? "✅ Wert vorhanden" : "❌ Wert fehlt");
+
+// Der Rest des Codes bleibt exakt gleich...
+// ... (ich lasse ihn hier weg, damit es übersichtlich bleibt, du musst nur die Zeilen oben ändern)
 // Wir definieren einen eindeutigen Namen für unser Spiel als "Service"
 const TALO_PLAYER_SERVICE = "domainguessr-web";
 
@@ -96,3 +105,4 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
+
