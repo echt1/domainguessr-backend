@@ -1,8 +1,9 @@
-// ====== FINALER, KORREKTER CODE für deine index.js ======
+// ====== AKTUALISIERTER index.js Code ======
 
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
+// `node-fetch` wird für Talo nicht mehr gebraucht, kann aber drin bleiben
 import fetch from "node-fetch";
 
 const app = express();
@@ -11,7 +12,41 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const TALO_API = "https://api.trytalo.com/v1";
+// Temporäre In-Memory-Speicherung für Lobbys { lobbyCode: peerId }
+const lobbies = {};
+
+// ===== NEUE ENDPUNKTE FÜR PARTY-MODUS =====
+
+// Erstellt eine neue Lobby-Zuordnung
+app.post("/create-lobby", (req, res) => {
+    const { lobbyCode, peerId } = req.body;
+    if (!lobbyCode || !peerId) {
+        return res.status(400).json({ error: "lobbyCode and peerId are required." });
+    }
+    lobbies[lobbyCode] = peerId;
+    console.log(`Lobby created: ${lobbyCode} -> ${peerId}`);
+
+    // Lobby nach 10 Minuten automatisch löschen, um Speicher freizugeben
+    setTimeout(() => {
+        delete lobbies[lobbyCode];
+        console.log(`Lobby ${lobbyCode} expired and was deleted.`);
+    }, 600000);
+
+    res.status(201).json({ success: true });
+});
+
+// Ruft die PeerID für einen Lobby-Code ab
+app.get("/join-lobby/:lobbyCode", (req, res) => {
+    const { lobbyCode } = req.params;
+    const peerId = lobbies[lobbyCode];
+    if (peerId) {
+        res.json({ peerId });
+    } else {
+        res.status(404).json({ error: "Lobby not found." });
+    }
+});
+
+const TALO_API = "https://api.trytalo.com/v1"; 
 const TALO_KEY = process.env.TALO_KEY;
 const TALO_LEADERBOARD_ID = "dg-singleplayer";
 // Wir definieren einen eindeutigen Namen für unser Spiel als "Service"
