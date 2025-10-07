@@ -1,10 +1,9 @@
 // ====== AKTUALISIERTER index.js Code ======
+console.log("TALO_KEY:", process.env.TALO_KEY ? "✅ Gefunden" : "❌ Nicht gefunden");
 
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-// `node-fetch` wird für Talo nicht mehr gebraucht, kann aber drin bleiben
-import fetch from "node-fetch";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -131,6 +130,7 @@ app.get("/leaderboard", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Backend läuft auf Port ${PORT}`);
 });
+
 
 
 
